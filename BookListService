@@ -1,0 +1,180 @@
+using System;
+using System.Collections.Generic;
+using BookSpace;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
+namespace Day5Task1Digilevich
+{
+    [Serializable]
+    public class BookListService
+    {
+        int _numberOfRecords = 0;
+        List<Book>[] listofbooks = new List<Book>[26];
+        [NonSerialized]
+        List<Book> sortedlist = new List<Book>();
+
+        public void Save()
+        {
+            var formatter = new BinaryFormatter();
+            using (Stream s = File.Create("books.dat"))
+                formatter.Serialize(s, this);
+        }
+
+        public BookListService Load()
+        {
+            var formatter = new BinaryFormatter();
+            using (Stream s = File.OpenRead("books.dat"))
+                return (BookListService)formatter.Deserialize(s);
+        }
+
+        public int GetNumberOfRecords()
+        {
+            return _numberOfRecords;
+        }
+
+        public void AddBooks(List<Book> books)
+        {
+            foreach (Book book in books)
+            {
+                int bookind = GetBookInd(book.GetHashCode());
+                if (Contains(book, bookind, true))
+                {
+                    return;
+                }
+                _numberOfRecords++;
+                if (listofbooks[bookind] == null)
+                    listofbooks[bookind] = new List<Book>();
+                listofbooks[bookind].Add(book);
+            }
+        }
+
+        public void AddBook(Book book)
+        {
+            int bookind = GetBookInd(book.GetHashCode());
+            if (Contains(book, bookind, true))
+            {
+                return;
+            }
+            _numberOfRecords++;
+            if (listofbooks[bookind] == null)
+                listofbooks[bookind] = new List<Book>();
+            listofbooks[bookind].Add(book);
+        }
+
+        public List<Book> GetAll()
+        {
+            this.SortBooksByTag(1);
+            List<Book> reslist = new List<Book>();
+            reslist.AddRange(sortedlist);
+            return reslist;
+        }
+
+        public bool RemoveBook(Book book)
+        {
+            int bookind = GetBookInd(book.GetHashCode());
+            if (Contains(book, bookind, false))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool Contains(Book book)
+        {
+            return Contains(book, GetBookInd(book.GetHashCode()), null);
+        }
+
+        private bool Contains(Book book, int boockind, bool? decinc)
+        {
+            if (listofbooks[boockind] != null)
+                foreach (Book member in listofbooks[boockind])
+                    if (member.Equals(book))
+                    {
+                        if (decinc == true)
+                            member.Quantity++;
+                        else
+                            if (decinc == false)
+                            {
+                                member.Quantity--;
+                                if (member.Quantity == 0)
+                                {
+                                    listofbooks[boockind].Remove(member);
+                                }
+                            }
+                        return true;
+                    }
+            return false;
+        }
+
+        public Book FindByTag(string tag)
+        {
+            if (listofbooks != null)
+                for (int i = 0; i < 26; i++)
+                    foreach (Book member in listofbooks[i])
+                    {
+                        if (member.ToString().Contains(tag))
+                            return member.Clone();
+                    }
+            return null;
+        }
+
+
+        /// <summary>
+        /// генерирует в экземпляре BookListService
+        /// отсортированный список книг, который 
+        /// можно получить через метод GetAll
+        /// </summary>
+        /// <param name="tag"></param>
+        public void SortBooksByTag(int tag)
+        {
+            if (listofbooks != null)
+            {
+                int length = 0;
+                for (int ind = 0; ind < 26; ind++)
+                    if (listofbooks[ind] != null)
+                        foreach (Book b in listofbooks[ind])
+                        {
+                            length++;
+                            sortedlist.Add(b);
+                        }
+
+                for (int i = 0; i < length; i++)
+                {
+                    for (int j = i + 1; j < length; j++)
+                    {
+                        if (sortedlist[j].CompareTo(sortedlist[i]) < 0)
+                        {
+                            var temp = sortedlist[i];
+                            sortedlist[i] = sortedlist[j];
+                            sortedlist[j] = temp;
+                        }
+                    }
+                }
+            }
+        }
+
+        private int GetBookInd(int hashcode)
+        {
+            unchecked
+            {
+                // Хэш-значение может быть отрицательным и остаток от деления, соответственно, тоже. 
+                // Выполняем вычисления над беззнаковыми целыми, чтобы гарантировать положительные значения. 
+                return (int)((uint)hashcode % (uint)listofbooks.Length);
+            }
+        }
+
+        public void ShowAll()
+        {
+            if (listofbooks != null)
+                for (int i = 0; i < 26; i++)
+                    if (listofbooks[i] != null)
+                    {
+                        Console.WriteLine(Char.ToUpper(listofbooks[i][0].Author[0]));
+                        foreach (Book b in listofbooks[i])
+                            Console.WriteLine(b);
+                    }
+        }
+
+    }
+}
