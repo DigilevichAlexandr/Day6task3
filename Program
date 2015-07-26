@@ -1,0 +1,30 @@
+using System;
+using System.IO;
+using BookSpace;
+using System.Collections.Generic;
+
+namespace Day5Task1Digilevich
+{
+    class Program
+    {
+        public static void Main()
+        {
+            List<Book> lb = new List<Book>();
+            lb.Add(new Book() { Author = "pushkin", Description = "bla bla bla", Prise = 12.3, Quantity = 0, Title = "zolotaya ribka" });
+            lb.Add(new Book() { Author = "gogol", Description = "bla bla bla", Prise = 12.3, Quantity = 0, Title = "mertvie dushi" });
+            lb.Add(new Book() { Author = "london", Description = "bla bla bla", Prise = 12.3, Quantity = 0, Title = "martin iden" });
+            lb.Add(new Book() { Author = "palanik", Description = "bla bla bla", Prise = 12.3, Quantity = 0, Title = "ucelevshiy" });
+            lb.Add(new Book() { Author = "roling", Description = "bla bla bla", Prise = 12.3, Quantity = 0, Title = "sluchaynaya vakansiya" });
+
+            BookListService bs = new BookListService();
+            bs.AddBooks(lb);
+
+            bs.Save();
+            BookListService loadedbs = bs.Load();
+            loadedbs.ShowAll();
+
+
+            Console.ReadLine();
+        }
+    }
+}
