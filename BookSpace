@@ -1,0 +1,66 @@
+using System;
+
+namespace BookSpace
+{
+    [Serializable]
+    public class Book : IEquatable<Book>, IComparable<Book>
+    {
+        public string Author { get; set; }
+        public string Title { get; set; }
+        public double Prise { get; set; }
+        public string Description { get; set; }
+        internal int Quantity { get; set; }
+        // + два-три нужных и стандартных для книги свойств
+        //TODO 
+
+        public Book()
+        {
+            Author = "";
+            Title = "";
+            Prise = 0;
+            Description = "";
+            Quantity = 0;
+        }
+        public Book(string a, string t, double p, string d, int q)
+        {
+            Author = Author.Insert(0, a);
+            Title = Title.Insert(0, t);
+            Prise = p;
+            Description = Description.Insert(0, d);
+            Quantity = q;
+        }
+
+        public bool Equals(Book other)
+        {
+            if (other == null)
+                return false;
+            else
+                return this.Author == other.Author && this.Title == other.Title;
+        }
+
+        public int CompareTo(Book other)
+        {
+
+            int c = this.Author.CompareTo(other.Author);
+            if (c == 0)
+                return this.Title.CompareTo(other.Title);
+            else
+                return c;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)char.ToUpper(this.Author[0]);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("Author:{0} Title:{1} Prise:{2}\n Description:{3}\n Quantity:{4}", Author, Title, Prise, Description, Quantity);
+        }
+
+        public Book Clone()
+        {
+            return new Book(Author, Title, Prise, Description, Quantity);
+        }
+    }
+}
