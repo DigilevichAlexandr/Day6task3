@@ -23,10 +23,10 @@ namespace BookSpace
         }
         public Book(string a, string t, double p, string d, int q)
         {
-            Author = Author.Insert(0, a);
-            Title = Title.Insert(0, t);
+            Author = a;
+            Title = t;
             Prise = p;
-            Description = Description.Insert(0, d);
+            Description =d;
             Quantity = q;
         }
 
@@ -50,7 +50,8 @@ namespace BookSpace
 
         public override int GetHashCode()
         {
-            return (int)char.ToUpper(this.Author[0]);
+            int ind = (int)char.ToUpper(this.Author[0])-'A';
+            return ind;
         }
 
         public override string ToString()
