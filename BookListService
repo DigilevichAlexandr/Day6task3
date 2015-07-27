@@ -37,7 +37,7 @@ namespace Day5Task1Digilevich
         {
             foreach (Book book in books)
             {
-                int bookind = GetBookInd(book.GetHashCode());
+                int bookind = book.GetHashCode();
                 if (Contains(book, bookind, true))
                 {
                     return;
@@ -51,7 +51,7 @@ namespace Day5Task1Digilevich
 
         public void AddBook(Book book)
         {
-            int bookind = GetBookInd(book.GetHashCode());
+            int bookind = book.GetHashCode();
             if (Contains(book, bookind, true))
             {
                 return;
@@ -72,7 +72,7 @@ namespace Day5Task1Digilevich
 
         public bool RemoveBook(Book book)
         {
-            int bookind = GetBookInd(book.GetHashCode());
+            int bookind = book.GetHashCode();
             if (Contains(book, bookind, false))
             {
                 return true;
@@ -82,7 +82,7 @@ namespace Day5Task1Digilevich
 
         public bool Contains(Book book)
         {
-            return Contains(book, GetBookInd(book.GetHashCode()), null);
+            return Contains(book,book.GetHashCode(), null);
         }
 
         private bool Contains(Book book, int boockind, bool? decinc)
@@ -107,9 +107,19 @@ namespace Day5Task1Digilevich
             return false;
         }
 
-        public Book FindByTag(string tag)
+        public Book FindByTag(string tag,char letter = '0')
         {
-            if (listofbooks != null)
+            if (listofbooks != null)                
+                if (letter != '0')
+                {
+                    int ind=(int)char.ToUpper(letter)-'A';
+                    foreach (Book member in listofbooks[ind])
+                    {
+                        if (member.ToString().Contains(tag))
+                            return member.Clone();
+                    }
+                }
+                else
                 for (int i = 0; i < 26; i++)
                     foreach (Book member in listofbooks[i])
                     {
@@ -154,15 +164,15 @@ namespace Day5Task1Digilevich
             }
         }
 
-        private int GetBookInd(int hashcode)
-        {
-            unchecked
-            {
-                // Хэш-значение может быть отрицательным и остаток от деления, соответственно, тоже. 
-                // Выполняем вычисления над беззнаковыми целыми, чтобы гарантировать положительные значения. 
-                return (int)((uint)hashcode % (uint)listofbooks.Length);
-            }
-        }
+        //private int GetBookInd(int hashcode)
+        //{
+        //    unchecked
+        //    {
+        //        // Хэш-значение может быть отрицательным и остаток от деления, соответственно, тоже. 
+        //        // Выполняем вычисления над беззнаковыми целыми, чтобы гарантировать положительные значения. 
+        //        return (int)((uint)hashcode % (uint)listofbooks.Length);
+        //    }
+        //}
 
         public void ShowAll()
         {
@@ -175,6 +185,5 @@ namespace Day5Task1Digilevich
                             Console.WriteLine(b);
                     }
         }
-
     }
 }
