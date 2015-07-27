@@ -23,6 +23,8 @@ namespace Day5Task1Digilevich
             BookListService loadedbs = bs.Load();
             loadedbs.ShowAll();
 
+            Console.WriteLine("Finded: "+bs.FindByTag("pushkin", 'p'));
+
 
             Console.ReadLine();
         }
