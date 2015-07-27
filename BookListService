@@ -14,19 +14,122 @@ namespace Day5Task1Digilevich
         [NonSerialized]
         List<Book> sortedlist = new List<Book>();
 
-        public void Save()
+        public void SaveSerialize()
         {
             var formatter = new BinaryFormatter();
             using (Stream s = File.Create("books.dat"))
                 formatter.Serialize(s, this);
         }
 
-        public BookListService Load()
+        public BookListService LoadSerialize()
         {
             var formatter = new BinaryFormatter();
             using (Stream s = File.OpenRead("books.dat"))
                 return (BookListService)formatter.Deserialize(s);
         }
+
+        public void SaveText()
+        {
+            using (Stream stream = File.Create("n.txt"))
+            {
+                var sw = new StreamWriter(stream);
+                sw.WriteLine(this._numberOfRecords);
+            }
+            using (Stream stream = File.Create("books.txt"))
+            {
+                var sw = new StreamWriter(stream);
+                if (listofbooks != null)
+                    for (int i = 0; i < 26; i++)
+                        if (listofbooks[i] != null)
+                            foreach (Book b in listofbooks[i])
+                            {
+                                sw.WriteLine(b.Author);
+                                sw.WriteLine(b.Title);
+                                sw.WriteLine(b.Prise);
+                                sw.WriteLine(b.Description);
+                                sw.WriteLine(b.Quantity);
+                            }
+                //sw.WriteLine(b);
+            }
+        }
+
+        public void LoadText()
+        {
+            using (Stream stream = File.OpenRead("n.txt"))
+            {
+                var sr = new StreamReader(stream);
+                _numberOfRecords = Int32.Parse(sr.ReadLine());
+            }
+            using (Stream stream = File.Create("books.txt"))
+            {
+                var sr = new StreamReader(stream);
+                for (int j = 0; j < _numberOfRecords; j++)
+                {
+                    Book b = new Book();
+                    b.Author = sr.ReadLine();
+                    b.Title = sr.ReadLine();
+                    b.Prise = Double.Parse(sr.ReadLine());
+                    b.Description = sr.ReadLine();
+                    b.Quantity = Int32.Parse(sr.ReadLine());
+                }
+            }
+        }
+
+        public void Save()
+        {
+            FileInfo failn = new FileInfo("n.bin");
+            using (BinaryWriter fw = new BinaryWriter(failn.Open(FileMode.OpenOrCreate, FileAccess.Write, FileShare.None)))
+            {
+                fw.Seek(0, SeekOrigin.End);
+                fw.Write(_numberOfRecords);
+
+                fw.Close();
+            }
+            FileInfo failbooks = new FileInfo("books.bin");
+            using (BinaryWriter fw = new BinaryWriter(failbooks.Open(FileMode.OpenOrCreate, FileAccess.Write, FileShare.None)))
+            {
+                fw.Seek(0, SeekOrigin.End);
+                if (listofbooks != null)
+                    for (int i = 0; i < 26; i++)
+                        if (listofbooks[i] != null)
+                            foreach (Book b in listofbooks[i])
+                            {
+                                fw.Write(b.Author);
+                                fw.Write(b.Title);
+                                fw.Write(b.Prise);
+                                fw.Write(b.Description);
+                                fw.Write(b.Quantity);
+                            }
+
+                fw.Close();
+            }
+        }
+
+        public void Load()
+        {
+            int n = 0;
+            FileInfo failn = new FileInfo("n.bin");
+            using (BinaryReader fr = new BinaryReader(failn.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.None)))
+                n = fr.ReadInt32();
+            FileInfo failbooks = new FileInfo("books.bin");
+            using (BinaryReader fr = new BinaryReader(failbooks.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.None)))
+                     //  while (fr.PeekChar() != -1)
+            { 
+                for (int j = 0; j < n; j++)
+                {
+                    Book b = new Book();
+                    b.Author = fr.ReadString();
+                    b.Title = fr.ReadString();
+                    b.Prise = fr.ReadDouble();
+                    b.Description = fr.ReadString();
+                    b.Quantity = fr.ReadInt32();
+                    this.AddBook(b);
+                }
+                fr.Close();
+            }
+            
+        }
+
 
         public int GetNumberOfRecords()
         {
@@ -82,7 +185,7 @@ namespace Day5Task1Digilevich
 
         public bool Contains(Book book)
         {
-            return Contains(book,book.GetHashCode(), null);
+            return Contains(book, book.GetHashCode(), null);
         }
 
         private bool Contains(Book book, int boockind, bool? decinc)
@@ -107,12 +210,12 @@ namespace Day5Task1Digilevich
             return false;
         }
 
-        public Book FindByTag(string tag,char letter = '0')
+        public Book FindByTag(string tag, char letter = '0')
         {
-            if (listofbooks != null)                
+            if (listofbooks != null)
                 if (letter != '0')
                 {
-                    int ind=(int)char.ToUpper(letter)-'A';
+                    int ind = (int)char.ToUpper(letter) - 'A';
                     foreach (Book member in listofbooks[ind])
                     {
                         if (member.ToString().Contains(tag))
@@ -120,12 +223,12 @@ namespace Day5Task1Digilevich
                     }
                 }
                 else
-                for (int i = 0; i < 26; i++)
-                    foreach (Book member in listofbooks[i])
-                    {
-                        if (member.ToString().Contains(tag))
-                            return member.Clone();
-                    }
+                    for (int i = 0; i < 26; i++)
+                        foreach (Book member in listofbooks[i])
+                        {
+                            if (member.ToString().Contains(tag))
+                                return member.Clone();
+                        }
             return null;
         }
 
